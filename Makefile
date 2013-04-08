@@ -64,7 +64,7 @@ all: $(OBJ) $(OPENLPC_OBJ)
 
 clean:
 	@echo -e "\e[1;33mCleaning object files...\e[0m"
-	$(RM) $(OBJ)
+	$(RM) $(OBJ) $(OPENLPC_OBJ)
 	$(RM) $(shell find . -type f -iname "*.d")
 	$(RM) $(PROJECT).elf $(PROJECT).bin
 	@echo -e "\e[1;32mDone\e[0m"

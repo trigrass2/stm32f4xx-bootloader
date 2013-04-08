@@ -1,8 +1,7 @@
-#include <UART.h>
-#include <digital_in.h>
 #include <stdint.h>
 #include <openlpc_xmodem.h>
 #include <stm32f4xx.h>
+#include <open_lpc.h>
 
 #define STARTUP_ADDRESS 0x08000000
 #define OFFSET_ADDRESS 0x1004 // (4Kb + endereço do Reset_Handler)

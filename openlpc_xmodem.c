@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include <openlpc_xmodem.h>
-#include <UART.h>
+#include <open_lpc.h>
 #include <stm32f4xx.h>
 
 #define SOH 0x01	// Heading do XMODEM

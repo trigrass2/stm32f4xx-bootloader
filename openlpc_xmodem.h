@@ -9,7 +9,7 @@
 #define OPENLPC_XMODEM_H
 
 #include <stdint.h>
-#include <UART.h>
+#include <open_lpc.h>
 
 void xmodem_startup_serial (uart_t *uart);
 

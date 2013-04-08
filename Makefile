@@ -57,7 +57,7 @@ all: $(OBJ) $(OPENLPC_OBJ)
 	@echo -e "\e[1;32mDone building object files\e[0m"
 	@echo
 	@echo -e "\e[1;33mLinking...\e[0m"
-	${LD} $(LDFLAGS) -T stm32f4xx_linker.ld --entry Reset_Handler $(OBJ) -o $(PROJECT).elf
+	${LD} $(LDFLAGS) -T stm32f4xx_linker.ld --entry Reset_Handler $(OBJ) $(OPENLPC_OBJ) -o $(PROJECT).elf
 	@echo "Done. Generating bin file..."
 	${OBJCOPY} -O binary $(PROJECT).elf $(PROJECT).bin
 	@echo -e "\e[1;32mDone\e[0m"

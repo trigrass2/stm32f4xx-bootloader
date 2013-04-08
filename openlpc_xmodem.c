@@ -37,10 +37,10 @@ static uint8_t xmodem_calculate_checksum (const uint8_t *data, uint32_t size) {
     return (uint8_t)(checksum & 0xFF);
 }
 
-static uart_t uart1;
+static uart_t *local_uart;
 
-void xmodem_startup_serial (void) {
-	uart_setup (&uart1, USART1, 115200, 8, PARITY_NONE, 1);
+void xmodem_startup_serial (uart_t *uart) {
+    local_uart = uart;
 }
 
 int32_t xmodem_send (const void *data, uint32_t size) {
@@ -58,7 +58,7 @@ int32_t xmodem_recv (void *data) {
 
 	// Iniciando a recepção
 	reply = NAK;
-	uart_write (&uart1, &reply, 1);
+	uart_write (local_uart, &reply, 1);
 
 	while (1) {
 
@@ -66,8 +66,8 @@ int32_t xmodem_recv (void *data) {
 
 		// Recebendo o pacote
 		do {
-			while (uart_data_available(&uart1) == 0) ;
-			offset += uart_read (&uart1, &packet.raw_data[offset], sizeof(packet.raw_data) - offset);
+			while (uart_data_available(local_uart) == 0) ;
+			offset += uart_read (local_uart, &packet.raw_data[offset], sizeof(packet.raw_data) - offset);
 
 			// Checa se houve pedido de cancelamento da conexão
 			if (packet.raw_data[0] == CAN && packet.raw_data[1] == CAN) {
@@ -100,24 +100,24 @@ int32_t xmodem_recv (void *data) {
 			d[data_offset] = packet.xmodem.payload[i];
 
 		reply = ACK;
-		uart_write (&uart1, &reply, 1);
+		uart_write (local_uart, &reply, 1);
 		continue;
 
 		REFUSE_PACKET:
 		reply = NAK;
-		uart_write (&uart1, &reply, 1);
+		uart_write (local_uart, &reply, 1);
 		continue;
 
 		CANCEL_CONNECTION:
 		reply = CAN;
-		uart_write (&uart1, &reply, 1);
-		uart_write (&uart1, &reply, 1);
+		uart_write (local_uart, &reply, 1);
+		uart_write (local_uart, &reply, 1);
 		data_offset = -1;
 		break;
 		
 		END_RECEPTION:
 		reply = ACK;
-		uart_write (&uart1, &reply, 1);
+		uart_write (local_uart, &reply, 1);
 		
 		break;
 

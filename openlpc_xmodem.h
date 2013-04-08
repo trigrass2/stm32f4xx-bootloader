@@ -9,8 +9,9 @@
 #define OPENLPC_XMODEM_H
 
 #include <stdint.h>
+#include <UART.h>
 
-void xmodem_startup_serial (void);
+void xmodem_startup_serial (uart_t *uart);
 
 int32_t xmodem_send (const void *data, uint32_t size);
 

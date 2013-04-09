@@ -11,29 +11,30 @@ void SysTick_Handler (void) {
 	ticks++;
 }
 
-#define STRING "Aqui daria boot, mas por enquanto esta parado\n"
+#define STRING "Aqui daria boot, mas por enquanto esta parado\r\n"
 
 int main (void) {
 
     digital_io_t bl_mode;
-    uart_t uart1;
+    uart_t uart2;
     void (*start_addr)(void);
     uint8_t buff[2048];
 
     digitalin_setup (&bl_mode, GPIOA, 0);
-    uart_setup (&uart1, USART1, 115200, 8, PARITY_NONE, 1);
-    xmodem_startup_serial (&uart1);
+    uart_setup (&uart2, USART2, 115200, 8, PARITY_NONE, 1);
+    xmodem_startup_serial (&uart2);
 
     if (digitalin_read(&bl_mode)) {
         xmodem_recv (buff);
-        uart_write (&uart1, buff, 2048);        
+        uart_write (&uart2, buff, 2048);        
     }
 
+    uart_write (&uart2, (uint8_t *)STRING, 48);
+
     start_addr = (void (*)(void))(STARTUP_ADDRESS | OFFSET_ADDRESS);
-   
 //    start_addr();
 
-    uart_write (&uart1, (uint8_t *)STRING, sizeof(STRING));
+
 
     while (1)
         ;

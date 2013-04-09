@@ -118,7 +118,6 @@ int32_t xmodem_recv (void *data) {
 		END_RECEPTION:
 		reply = ACK;
 		uart_write (local_uart, &reply, 1);
-		
 		break;
 
 	}

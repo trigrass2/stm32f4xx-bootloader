@@ -9,6 +9,7 @@ CC=$(CROSS_COMPILE)gcc
 LD=$(CROSS_COMPILE)ld
 OBJCOPY=$(CROSS_COMPILE)objcopy
 NM=$(CROSS_COMPILE)nm
+GDB=$(CROSS_COMPILE)gdb
 
 # Special variables for Cortex-M4F
 CPU=-mcpu=cortex-m4
@@ -23,6 +24,7 @@ AFLAGS=-mthumb \
 
 # Include path
 INCLUDEDIR+=-I. \
+	-I./stdlib \
 	-I$(OPENLPC_PATH)/include \
 	-I$(OPENLPC_PATH)/ports/STM32F4xx/inc
 
@@ -37,6 +39,7 @@ CFLAGS := -mthumb			\
 		-Wall   		\
 		-c			\
 		-DHSE_VALUE=8000000	\
+		-ggdb \
 		$(INCLUDEDIR)
 
 # Linker flags
@@ -49,6 +52,8 @@ OBJ+=openlpc_xmodem.o \
 
 OPENLPC_OBJ+=$(OPENLPC_PATH)/ports/STM32F4xx/src/digital_io.o \
 	$(OPENLPC_PATH)/ports/STM32F4xx/src/uart.o \
+	stdlib/serial_io.o \
+	stdlib/openlpc_stdlib.o \
 	$(OPENLPC_PATH)/ports/STM32F4xx/src/misc.o
 
 PROJECT := stm32f4xx-bootloader
@@ -71,4 +76,6 @@ clean:
 
 elf-info:
 	$(NM) -SC $(PROJECT).elf
+
+gdb:
 

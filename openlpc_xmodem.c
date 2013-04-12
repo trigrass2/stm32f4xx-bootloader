@@ -28,6 +28,46 @@ typedef union {
 	} xmodem;
 } xmodem_packet_t;
 
+#define BUFFER_LENGTH 4096
+static uint8_t reception_buffer[BUFFER_LENGTH];
+static uint32_t sob, eob;
+static uart_t *local_uart;
+
+void xmodem_uart_isr(void) {
+	uint32_t amount, to_read;
+	uint8_t byte;
+
+	while (uart_data_available(local_uart)) {
+		uart_read (local_uart, &byte, 1);
+		reception_buffer[eob++] = byte;
+		if (eob > (BUFFER_LENGTH - 1))
+			eob = (eob % BUFFER_SIZE);
+			if (((eob + 1) % BUFFER_SIZE) == (sob - 1))
+				break;	// Buffer cheio :/
+	}
+}
+
+static uint32_t xmodem_data_available (void) {
+	return ((eob - sob) % BUFFER_LENGTH);
+}
+
+static uint32_t xmodem_read (void *data, uint32_t size) {
+	uint8_t *d = (uint8_t *)data;
+	uint32_t i = 0, amount;
+
+	amount = xmodem_data_available();
+
+	if (amount) {
+		for (i = 0; i < size && i < amount; i++, sob++) {
+			d[i] = reception_buffer[sob];
+			if (sob > (BUFFER_LENGTH - 1))
+				sob = sob % BUFFER_LENGTH;
+		}
+	}
+
+	return i;
+}
+
 static uint8_t xmodem_calculate_checksum (const uint8_t *data, uint32_t size) {
     uint32_t checksum, i;
 
@@ -37,10 +77,10 @@ static uint8_t xmodem_calculate_checksum (const uint8_t *data, uint32_t size) {
     return (uint8_t)(checksum & 0xFF);
 }
 
-static uart_t *local_uart;
-
 void xmodem_startup_serial (uart_t *uart) {
     local_uart = uart;
+	sob = eob = 0;
+	// TODO: Ativar a interrupção da serial
 }
 
 int32_t xmodem_send (const void *data, uint32_t size) {
@@ -66,8 +106,8 @@ int32_t xmodem_recv (void *data) {
 
 		// Recebendo o pacote
 		do {
-			while (uart_data_available(local_uart) == 0) ;
-			offset += uart_read (local_uart, &packet.raw_data[offset], sizeof(packet.raw_data) - offset);
+			while (xmodem_data_available() == 0) ;
+			offset += xmodem_read (&packet.raw_data[offset], sizeof(packet.raw_data) - offset);
 
 			// Checa se houve pedido de cancelamento da conexão
 			if (packet.raw_data[0] == CAN && packet.raw_data[1] == CAN) {

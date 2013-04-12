@@ -41,8 +41,8 @@ void xmodem_uart_isr(void) {
 		uart_read (local_uart, &byte, 1);
 		reception_buffer[eob++] = byte;
 		if (eob > (BUFFER_LENGTH - 1))
-			eob = (eob % BUFFER_SIZE);
-			if (((eob + 1) % BUFFER_SIZE) == (sob - 1))
+			eob = (eob % BUFFER_LENGTH);
+			if (((eob + 1) % BUFFER_LENGTH) == (sob - 1))
 				break;	// Buffer cheio :/
 	}
 }
@@ -80,7 +80,10 @@ static uint8_t xmodem_calculate_checksum (const uint8_t *data, uint32_t size) {
 void xmodem_startup_serial (uart_t *uart) {
     local_uart = uart;
 	sob = eob = 0;
-	// TODO: Ativar a interrupção da serial
+
+	// Ativa a interrupção da serial
+	USART_TypeDef *usart_typedef = (USART_TypeDef *)uart->uart;
+	usart_typedef->CR1 |= (1 << 5);
 }
 
 int32_t xmodem_send (const void *data, uint32_t size) {

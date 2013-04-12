@@ -21,6 +21,7 @@ extern void SystemInit (void);
 extern void SysTick_Handler (void);
 extern int main (void);
 extern void SystemCoreClockUpdate (void);
+extern void xmodem_uart_isr (void);	// Definida em openlpc_xmodem.c
 
 void Reset_Handler (void) {
 
@@ -31,7 +32,7 @@ void Reset_Handler (void) {
         ;
 
     // Zera o bss (inicializa as variáveis sem inicialização
-    for (bss = &_bss; bss < &_ebss; *bss++ = 0)
+//    for (bss = &_bss; bss < &_ebss; *bss++ = 0)
         ;
 
     // Inicia o hardware do sistema
@@ -124,7 +125,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefault_Handler, /* SPI1                         */                   
     IntDefault_Handler, /* SPI2                         */                   
     IntDefault_Handler, /* USART1                       */                   
-    IntDefault_Handler, /* USART2                       */                   
+    xmodem_uart_isr,    /* USART2                       */                   
     IntDefault_Handler, /* USART3                       */                   
     IntDefault_Handler, /* External Line[15:10]s        */                          
     IntDefault_Handler, /* RTC Alarm (A and B) through EXTI Line */                 

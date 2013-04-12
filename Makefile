@@ -32,7 +32,7 @@ INCLUDEDIR+=-I. \
 CFLAGS := -mthumb			\
 		$(CPU)			\
 		$(FPU)			\
-		-Os			\
+		-O0			\
 		-ffunction-sections	\
 		-fdata-sections		\
 		-MD			\
@@ -78,4 +78,4 @@ elf-info:
 	$(NM) -SC $(PROJECT).elf
 
 gdb:
-
+	$(GDB) $(PROJECT).elf
